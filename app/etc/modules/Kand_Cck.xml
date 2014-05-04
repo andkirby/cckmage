@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Kand_Cck>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Kand_Cck>
+    </modules>
+</config>

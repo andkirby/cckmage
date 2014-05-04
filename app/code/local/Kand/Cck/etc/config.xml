@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Kand_Cck>
+            <version>0.1.0</version>
+        </Kand_Cck>
+    </modules>
+    <global>
+        <models>
+            <kand_cck>
+                <class>Kand_Cck_Model</class>
+                <resourceModel>kand_cck_resource</resourceModel>
+            </kand_cck>
+            <kand_cck_resource>
+                <class>Kand_Cck_Model_Resource</class>
+            </kand_cck_resource>
+        </models>
+        <blocks>
+            <kand_cck>
+                <class>Kand_Cck_Block</class>
+            </kand_cck>
+        </blocks>
+        <helpers>
+            <kand_cck>
+                <class>Kand_Cck_Helper</class>
+            </kand_cck>
+        </helpers>
+        <resources>
+            <kand_cck_setup>
+                <setup>
+                    <module>Kand_Cck</module>
+                </setup>
+            </kand_cck_setup>
+        </resources>
+    </global>
+</config>
