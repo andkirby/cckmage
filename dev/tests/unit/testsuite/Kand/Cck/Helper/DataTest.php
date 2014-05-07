@@ -15,6 +15,17 @@ class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
     protected $_className = 'Kand_Cck_Helper_Data';
 
     /**
+     * Get mock object
+     *
+     * @param array $methods
+     * @return Kand_Cck_Helper_Data|PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function _getObjectMock(array $methods)
+    {
+        return $this->getMock($this->_className, $methods);
+    }
+
+    /**
      * Test instance
      */
     public function testInstance()
@@ -23,11 +34,41 @@ class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test collecting texts in HTML with empty param
+     */
+    public function testCollectTextsEmpty()
+    {
+        $methods = array('____');
+        $test = $this->_getObjectMock($methods);
+        $result = $test->collectTexts('');
+        $this->assertEquals(array(), $result);
+        $result = $test->collectTexts(null);
+        $this->assertEquals(array(), $result);
+    }
+
+    /**
+     * Test collecting texts in HTML with non-string param
+     */
+    public function testCollectTextsNonString()
+    {
+        $methods = array('____');
+        $test = $this->_getObjectMock($methods);
+
+        $this->setExpectedException('Exception', 'HTML parameter must a string.');
+        $test->collectTexts(array());
+
+        $this->setExpectedException('Exception', 'HTML parameter must a string.');
+        $test->collectTexts(new stdClass());
+    }
+
+    /**
      * Test collecting texts in HTML
      */
-    public function testCollectTexts()
+    public function testCollectTextsSuccess()
     {
-        $test = $this->getMock($this->_className, array('collectTexts'));
+        $this->markTestIncomplete();
+        $methods = array('___');
+        $test = $this->_getObjectMock($methods);
         //@startSkipCommitHooks
         $html = <<<HTML
 <div>
