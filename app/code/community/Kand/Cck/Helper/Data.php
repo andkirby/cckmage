@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Kand_Cck_Helper_Data
  */
@@ -12,6 +11,8 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     const DIRECTIVE_TAG_END         = '__TAG_END__';
     const DIRECTIVE_TAG_CLOSE_START = '__TAG_CLOSE_START__';
     const DIRECTIVE_TAG_CLOSE_END   = '__TAG_CLOSE_END__';
+    const DIRECTIVE_CMS_TAG_START   = '__CMS_TAG_START__';
+    const DIRECTIVE_CMS_TAG_END     = '__CMS_TAG_END__';
     /**#@-*/
 
     /**
@@ -24,6 +25,8 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
         self::DIRECTIVE_TAG_END,
         self::DIRECTIVE_TAG_CLOSE_START,
         self::DIRECTIVE_TAG_CLOSE_END,
+        self::DIRECTIVE_CMS_TAG_START,
+        self::DIRECTIVE_CMS_TAG_END,
     );
 
     /**
@@ -108,11 +111,16 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             self::DIRECTIVE_TAG_CLOSE_START . '$2' . self::DIRECTIVE_TAG_CLOSE_END,
             $html
         );
+        $html = preg_replace(
+            '/({{)([A-z0-9_]+[^>]*)(}})/',
+            self::DIRECTIVE_CMS_TAG_START . '$2' . self::DIRECTIVE_CMS_TAG_END,
+            $html
+        );
 
-        $html = $this->_explodeByDirective($html, self::DIRECTIVE_TAG_START);
-        $html = $this->_explodeByDirective($html, self::DIRECTIVE_TAG_END);
-        $html = $this->_explodeByDirective($html, self::DIRECTIVE_TAG_CLOSE_START);
-        return $this->_explodeByDirective($html, self::DIRECTIVE_TAG_CLOSE_END);
+        foreach ($this->_tagEndings as $directive) {
+            $html = $this->_explodeByDirective($html, $directive);
+        }
+        return $html;
     }
 
     /**
@@ -133,8 +141,10 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
                 $html .= $this->_getGapHtml($node);
             } elseif ($node['type'] === 'text') {
                 $html .= $this->_getTextHtml($node, $asText);
+            } elseif ($node['type'] === 'cms_directive') {
+                $html .= $this->_getCmsDirectiveHtml($node, $asText);
             } else {
-                throw new Exception('Unknown node type: ' . $node['type']);
+                throw new Exception('Unknown node type: "' . $node['type'] . '".');
             }
         }
         return $html;
@@ -197,6 +207,27 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             $node['children'] = $this->_makeNodesStructure($node['name']);
             $node['has_text'] = $this->_isChildrenHasText($node);
         }
+        if (!$node) {
+            throw new Exception('No node found.');
+        }
+        return $node;
+    }
+
+    /**
+     * Structure single CMS directive
+     *
+     * @return array
+     * @throws Exception
+     */
+    protected function _structureCmsDirective()
+    {
+        $node = array();
+        $item = current($this->_htmlNodes);
+        if ($item === self::DIRECTIVE_CMS_TAG_START) {
+            $item = $this->_nextHtml(); //tag body
+            $node = $this->_getCmsDirectiveElement($item);
+            $this->_nextHtml(); //end tag
+        }
 
         if (!$node) {
             throw new Exception('No node found.');
@@ -225,6 +256,8 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
                 $nodes = array_merge($nodes, $this->_getTextElement($item));
             } elseif ($item === self::DIRECTIVE_TAG_START) {
                 $nodes[] = $this->_structureTag();
+            } elseif ($item === self::DIRECTIVE_CMS_TAG_START) {
+                $nodes[] = $this->_structureCmsDirective();
             } elseif ($this->_isNodeForCloseTag($closeTagName)) {
                 //expected tag closed
                 $this->_nextHtml(); //skip close tag name
@@ -275,7 +308,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      * @param string $textLabel
      * @return string
      */
-    protected function _getCmsDirective($textLabel)
+    protected function _getCckCmsDirective($textLabel)
     {
         return "{{cms_text key=\"$textLabel\"}}";
     }
@@ -322,6 +355,20 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             'name'     => $this->_getTagName($item),
             'body'     => $item,
             'children' => array(),
+        );
+    }
+
+    /**
+     * Get CMS directive element
+     *
+     * @param string $item
+     * @return array
+     */
+    protected function _getCmsDirectiveElement($item)
+    {
+        return array(
+            'type'     => 'cms_directive',
+            'body'     => $item,
         );
     }
 
@@ -386,7 +433,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
                     $html .= $text;
                 } else {
                     $textLabel = $this->_addText($text);
-                    $html .= $this->_getCmsDirective($textLabel);
+                    $html .= $this->_getCckCmsDirective($textLabel);
                 }
             } else {
                 $html .= $this->_processStructuredTags($node['children'], false);
@@ -409,8 +456,19 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             return $node['body'];
         } else {
             $textLabel = $this->_addText($node['body']);
-            return $this->_getCmsDirective($textLabel);
+            return $this->_getCckCmsDirective($textLabel);
         }
+    }
+
+    /**
+     * Get CMS directive HTML
+     *
+     * @param array $node
+     * @return string
+     */
+    protected function _getCmsDirectiveHtml(array $node)
+    {
+        return '{{' . $node['body'] . '}}';
     }
 
     /**
