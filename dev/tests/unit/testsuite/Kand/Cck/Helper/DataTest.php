@@ -15,6 +15,40 @@ class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
     protected $_className = 'Kand_Cck_Helper_Data';
 
     /**
+     * Output HTML fixture
+     *
+     * @var string
+     */
+    protected $_inputHtmlFixture = '_fixture/input.html';
+
+    /**
+     * Output HTML fixture
+     *
+     * @var string
+     */
+    protected $_outputHtmlFixture = '_fixture/output.html';
+
+    /**
+     * Get input HTML
+     *
+     * @return string
+     */
+    protected function _getFixtureInputHtml()
+    {
+        return file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $this->_inputHtmlFixture);
+    }
+
+    /**
+     * Get output HTML
+     *
+     * @return string
+     */
+    protected function _getFixtureOutputHtml()
+    {
+        return file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . $this->_outputHtmlFixture);
+    }
+
+    /**
      * Get mock object
      *
      * @param array $methods
@@ -69,20 +103,7 @@ class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
         $methods = array('___');
         $test = $this->_getObjectMock($methods);
 
-        //@startSkipCommitHooks
-        $html = <<<HTML
-Some text in the beginning.
-<div class="some-class" style="background-color: #000055">
-    <h1>Some Title</h1>
-    <span>Span Text</span>
-    <a href="#mylink">My pretty nice <em>link</em></a>
-    <p>Some long paragraph
-    with a <a href="http://example.com/?my=1">link</a></p>
-</div>
-Some text in the ending.
-HTML;
-        //@finishSkipCommitHooks
-
+        $html = $this->_getFixtureInputHtml();
         $result = $test->collectTexts($html);
 
         //test return in collectTexts() method
@@ -95,25 +116,13 @@ HTML;
             'text_' . ++$cnt => 'Span Text',
             'text_' . ++$cnt => 'My pretty nice <em>link</em>',
             'text_' . ++$cnt => 'Some long paragraph
-    with a <a href="http://example.com/?my=1">link</a>',
+        with a <a href="http://example.com/?my=1">link</a>',
             'text_' . ++$cnt => 'Some text in the ending.',
         );
         $this->assertEquals($expected, $result);
 
         //Check output HTML
-        //@startSkipCommitHooks
-        $expected = <<<HTML
-{{cms_text key="text_1"}}
-<div class="some-class" style="background-color: #000055">
-    <h1>{{cms_text key="text_2"}}</h1>
-    <span>{{cms_text key="text_3"}}</span>
-    <a href="#mylink">{{cms_text key="text_4"}}</a>
-    <p>{{cms_text key="text_5"}}</p>
-</div>
-{{cms_text key="text_6"}}
-HTML;
-        //@finishSkipCommitHooks
-
+        $expected = $this->_getFixtureOutputHtml();
         $result = $test->getOutputHtml();
         $this->assertEquals($expected, $result);
     }
