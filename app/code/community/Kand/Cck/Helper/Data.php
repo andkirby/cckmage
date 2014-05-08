@@ -5,6 +5,27 @@
  */
 class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    /**#@+
+     * Tag endings
+     */
+    const DIRECTIVE_TAG_START       = '__TAG_START__';
+    const DIRECTIVE_TAG_END         = '__TAG_END__';
+    const DIRECTIVE_TAG_CLOSE_START = '__TAG_CLOSE_START__';
+    const DIRECTIVE_TAG_CLOSE_END   = '__TAG_CLOSE_END__';
+    /**#@-*/
+
+    /**
+     * Tag endings directives list
+     *
+     * @var array
+     */
+    protected $_tagEndings = array(
+        self::DIRECTIVE_TAG_START,
+        self::DIRECTIVE_TAG_END,
+        self::DIRECTIVE_TAG_CLOSE_START,
+        self::DIRECTIVE_TAG_CLOSE_END,
+    );
+
     /**
      * Parsed HTML nodes
      *
@@ -25,18 +46,6 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      * @var array
      */
     protected $_outputHtml = array();
-
-    /**
-     * Tag endings
-     *
-     * @var array
-     */
-    protected $_tagEndings = array(
-        '__TAG_START__',
-        '__TAG_END__',
-        '__TAG_CLOSE_START__',
-        '__TAG_CLOSE_END__',
-    );
 
     /**
      * Get text entities
@@ -91,19 +100,19 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $html = preg_replace(
             '/(<)([A-z0-9_]+[^>]*)(>)/',
-            $this->_tagEndings[0] . '$2' . $this->_tagEndings[1],
+            self::DIRECTIVE_TAG_START . '$2' . self::DIRECTIVE_TAG_END,
             $html
         );
         $html = preg_replace(
             '/(<\/)([A-z0-9_]+[^>]*)(>)/',
-            $this->_tagEndings[2] . '$2' . $this->_tagEndings[3],
+            self::DIRECTIVE_TAG_CLOSE_START . '$2' . self::DIRECTIVE_TAG_CLOSE_END,
             $html
         );
 
-        $html = $this->_explodeByDirective($html, $this->_tagEndings[0]);
-        $html = $this->_explodeByDirective($html, $this->_tagEndings[1]);
-        $html = $this->_explodeByDirective($html, $this->_tagEndings[2]);
-        return $this->_explodeByDirective($html, $this->_tagEndings[3]);
+        $html = $this->_explodeByDirective($html, self::DIRECTIVE_TAG_START);
+        $html = $this->_explodeByDirective($html, self::DIRECTIVE_TAG_END);
+        $html = $this->_explodeByDirective($html, self::DIRECTIVE_TAG_CLOSE_START);
+        return $this->_explodeByDirective($html, self::DIRECTIVE_TAG_CLOSE_END);
     }
 
     /**
@@ -179,7 +188,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $node = array();
         $item = current($this->_htmlNodes);
-        if ($item === $this->_tagEndings[0]) {
+        if ($item === self::DIRECTIVE_TAG_START) {
             $item = $this->_nextHtml(); //tag name
             $node = $this->_getTagElement($item);
             $this->_nextHtml(); //end tag
@@ -214,7 +223,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             }
             if (!in_array($item, $this->_tagEndings)) {
                 $nodes = array_merge($nodes, $this->_getTextElement($item));
-            } elseif ($item === $this->_tagEndings[0]) {
+            } elseif ($item === self::DIRECTIVE_TAG_START) {
                 $nodes[] = $this->_structureTag();
             } elseif ($this->_isNodeForCloseTag($closeTagName)) {
                 //expected tag closed
@@ -279,7 +288,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _isNodeForCloseTag($closeTagName)
     {
-        $result = $closeTagName && current($this->_htmlNodes) === $this->_tagEndings[2]
+        $result = $closeTagName && current($this->_htmlNodes) === self::DIRECTIVE_TAG_CLOSE_START
             && $this->_nextHtml() === $closeTagName;
         prev($this->_htmlNodes); //rollback next
         return $result;
