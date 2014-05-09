@@ -16,11 +16,11 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     /**#@-*/
 
     /**
-     * Un-pair tags list
+     * Unpaired tags list
      *
      * @var array
      */
-    protected $_unPairTags = array(
+    protected $_unpairedTags = array(
         'area',
         'base',
         'basefont',
@@ -230,7 +230,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             $node = $this->_getTagElement($item);
             $this->_nextHtml(); //end tag
 
-            if (!$this->_isTagUnPair($node['name'])) {
+            if (!$this->_isTagUnpaired($node['name'])) {
                 $this->_nextHtml(); //next node
                 $node['children'] = $this->_makeNodesStructure($node['name']);
                 $node['has_text'] = $this->_isChildrenHasText($node);
@@ -454,7 +454,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _getTagHtml(array $node, $asText)
     {
-        if ($this->_isTagUnPair($node['name'])) {
+        if ($this->_isTagUnpaired($node['name'])) {
             return "<{$node['body']}>";
         }
 
@@ -516,13 +516,13 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Check is tag un-pair
+     * Check is tag unpaired
      *
      * @param $tag
      * @return bool
      */
-    protected function _isTagUnPair($tag)
+    protected function _isTagUnpaired($tag)
     {
-        return (bool)in_array(strtolower($tag), $this->_unPairTags);
+        return (bool)in_array(strtolower($tag), $this->_unpairedTags);
     }
 }
