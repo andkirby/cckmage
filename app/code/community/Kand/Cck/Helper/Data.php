@@ -57,6 +57,18 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     );
 
     /**
+     * Source tags
+     *
+     * Tags which has some source attribute
+     *
+     * @var array
+     */
+    protected $_sourceTags = array(
+        'img' => 'src',
+        'a'   => 'href',
+    );
+
+    /**
      * Parsed HTML nodes
      *
      * @var array
@@ -339,7 +351,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _getCckCmsDirective($textLabel)
     {
-        return "{{cms_text key=\"$textLabel\"}}";
+        return "{{cms_text key=$textLabel}}";
     }
 
     /**
@@ -373,16 +385,19 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Get tag element
      *
-     * @param string $item
+     * @param string $tagBody
      * @return array
      */
-    protected function _getTagElement($item)
+    protected function _getTagElement($tagBody)
     {
+        $tagName = $this->_getTagName($tagBody);
+        $source = $this->_getTagSource($tagBody, $tagName);
         return array(
             'type'     => 'tag',
             'has_text' => false,
-            'name'     => $this->_getTagName($item),
-            'body'     => $item,
+            'source'   => $source,
+            'name'     => $tagName,
+            'body'     => $tagBody,
             'children' => array(),
         );
     }
@@ -454,11 +469,12 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _getTagHtml(array $node, $asText)
     {
+        $body = $this->_getTagBody($node);
         if ($this->_isTagUnpaired($node['name'])) {
-            return "<{$node['body']}>";
+            return "<{$body}>";
         }
 
-        $html = "<{$node['body']}>";
+        $html = "<{$body}>";
         if ($node['children']) {
             if ($node['has_text'] || $asText) {
                 $text = $this->_processStructuredTags($node['children'], true);
@@ -524,5 +540,44 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     protected function _isTagUnpaired($tag)
     {
         return (bool)in_array(strtolower($tag), $this->_unpairedTags);
+    }
+
+    /**
+     * Get source URL of tag
+     *
+     * @param string $item
+     * @param string $tagName
+     * @return null|string
+     */
+    protected function _getTagSource($item, $tagName)
+    {
+        $source = null;
+        if (isset($this->_sourceTags[$tagName])) {
+            $sourceAttr = $this->_sourceTags[$tagName];
+            preg_match('/' . $sourceAttr . '=[\'"](.*?)[\'"]/', $item, $m);
+            if ($m[1]) {
+                $source = $m[1];
+                return $source;
+            }
+        }
+        return $source;
+    }
+
+    /**
+     * Get tag body
+     *
+     * This method implemented to set CCK CMS directive into source attributes
+     *
+     * @param array $node
+     * @return mixed
+     */
+    protected function _getTagBody(array $node)
+    {
+        if ($node['source']) {
+            $textLabel = $this->_addText($node['source']);
+            $directive = $this->_getCckCmsDirective($textLabel);
+            $node['body'] = str_replace($node['source'], $directive, $node['body']);
+        }
+        return $node['body'];
     }
 }

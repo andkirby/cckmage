@@ -114,9 +114,12 @@ class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
             'text_' . ++$cnt => 'Some text in the beginning.',
             'text_' . ++$cnt => 'Some Title',
             'text_' . ++$cnt => 'Span Text',
+            'text_' . ++$cnt => '/skin/frontend/enterprise/hastens/images/tmp/layering-test.jpg',
+            'text_' . ++$cnt => '#mylink',
             'text_' . ++$cnt => 'My pretty nice <em>link</em>',
+            'text_' . ++$cnt => 'http://example.com/?my=1',
             'text_' . ++$cnt => 'Some long paragraph
-        with a <a href="http://example.com/?my=1">link</a>',
+        with a <a href="{{cms_text key=text_7}}">link</a>',
             'text_' . ++$cnt => 'Some text in the ending.',
         );
         $this->assertEquals($expected, $result);
