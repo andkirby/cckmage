@@ -147,25 +147,8 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _explodeHtmlToTagNodes($html)
     {
-        $html = preg_replace(
-            '/(<)([A-z0-9_]+[^>]*)(>)/',
-            self::DIRECTIVE_TAG_START . '$2' . self::DIRECTIVE_TAG_END,
-            $html
-        );
-        $html = preg_replace(
-            '/(<\/)([A-z0-9_]+[^>]*)(>)/',
-            self::DIRECTIVE_TAG_CLOSE_START . '$2' . self::DIRECTIVE_TAG_CLOSE_END,
-            $html
-        );
-        $html = preg_replace(
-            '/({{)([A-z0-9_]+[^>]*)(}})/',
-            self::DIRECTIVE_CMS_TAG_START . '$2' . self::DIRECTIVE_CMS_TAG_END,
-            $html
-        );
-
-        foreach ($this->_tagEndings as $directive) {
-            $html = $this->_explodeByDirective($html, $directive);
-        }
+        $html = $this->_setHtmlDirectives($html);
+        $html = $this->_explodeByAllDirectives($html);
         return $html;
     }
 
@@ -576,7 +559,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      * This method implemented to set CCK CMS directive into source attributes
      *
      * @param array $node
-     * @return mixed
+     * @return string
      */
     protected function _getTagBody(array $node)
     {
@@ -586,5 +569,47 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             $node['body'] = str_replace($node['source'], $directive, $node['body']);
         }
         return $node['body'];
+    }
+
+    /**
+     * Set HTML directives
+     *
+     * Prepare HTML to parsing
+     *
+     * @param string $html
+     * @return string
+     */
+    protected function _setHtmlDirectives($html)
+    {
+        $html = preg_replace(
+            '/(<)([A-z0-9_]+[^>]*)(>)/',
+            self::DIRECTIVE_TAG_START . '$2' . self::DIRECTIVE_TAG_END,
+            $html
+        );
+        $html = preg_replace(
+            '/(<\/)([A-z0-9_]+[^>]*)(>)/',
+            self::DIRECTIVE_TAG_CLOSE_START . '$2' . self::DIRECTIVE_TAG_CLOSE_END,
+            $html
+        );
+        $html = preg_replace(
+            '/({{)([A-z0-9_]+[^>]*)(}})/',
+            self::DIRECTIVE_CMS_TAG_START . '$2' . self::DIRECTIVE_CMS_TAG_END,
+            $html
+        );
+        return $html;
+    }
+
+    /**
+     * Explode by all directives
+     *
+     * @param string $html
+     * @return array
+     */
+    protected function _explodeByAllDirectives($html)
+    {
+        foreach ($this->_tagEndings as $directive) {
+            $html = $this->_explodeByDirective($html, $directive);
+        }
+        return $html;
     }
 }
