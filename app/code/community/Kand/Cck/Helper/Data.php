@@ -16,6 +16,20 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     /**#@-*/
 
     /**
+     * Tag endings directives list
+     *
+     * @var array
+     */
+    protected $_tagEndings = array(
+        self::DIRECTIVE_TAG_START,
+        self::DIRECTIVE_TAG_END,
+        self::DIRECTIVE_TAG_CLOSE_START,
+        self::DIRECTIVE_TAG_CLOSE_END,
+        self::DIRECTIVE_CMS_TAG_START,
+        self::DIRECTIVE_CMS_TAG_END,
+    );
+
+    /**
      * Unpaired tags list
      *
      * @var array
@@ -40,20 +54,6 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
         'source',
         'track',
         'wbr',
-    );
-
-    /**
-     * Tag endings directives list
-     *
-     * @var array
-     */
-    protected $_tagEndings = array(
-        self::DIRECTIVE_TAG_START,
-        self::DIRECTIVE_TAG_END,
-        self::DIRECTIVE_TAG_CLOSE_START,
-        self::DIRECTIVE_TAG_CLOSE_END,
-        self::DIRECTIVE_CMS_TAG_START,
-        self::DIRECTIVE_CMS_TAG_END,
     );
 
     /**
