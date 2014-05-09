@@ -69,6 +69,13 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     );
 
     /**
+     * CCK CMS directive format
+     *
+     * @var string
+     */
+    protected $_cckCmsDirectiveFormat = '{{cms_text key=%s}}';
+
+    /**
      * Parsed HTML nodes
      *
      * @var array
@@ -351,7 +358,7 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _getCckCmsDirective($textLabel)
     {
-        return "{{cms_text key=$textLabel}}";
+        return sprintf($this->_cckCmsDirectiveFormat, $textLabel);
     }
 
     /**
