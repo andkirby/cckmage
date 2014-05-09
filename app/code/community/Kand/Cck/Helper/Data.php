@@ -16,6 +16,33 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     /**#@-*/
 
     /**
+     * Un-pair tags list
+     *
+     * @var array
+     */
+    protected $_unPairTags = array(
+        'area',
+        'base',
+        'basefont',
+        'bgsound',
+        'br',
+        'col',
+        'command',
+        'embed',
+        'hr',
+        'img',
+        'input',
+        'isindex',
+        'keygen',
+        'link',
+        'meta',
+        'param',
+        'source',
+        'track',
+        'wbr',
+    );
+
+    /**
      * Tag endings directives list
      *
      * @var array
@@ -202,10 +229,12 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
             $item = $this->_nextHtml(); //tag name
             $node = $this->_getTagElement($item);
             $this->_nextHtml(); //end tag
-            $this->_nextHtml(); //next node
 
-            $node['children'] = $this->_makeNodesStructure($node['name']);
-            $node['has_text'] = $this->_isChildrenHasText($node);
+            if (!$this->_isTagUnPair($node['name'])) {
+                $this->_nextHtml(); //next node
+                $node['children'] = $this->_makeNodesStructure($node['name']);
+                $node['has_text'] = $this->_isChildrenHasText($node);
+            }
         }
         if (!$node) {
             throw new Exception('No node found.');
@@ -425,6 +454,10 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      */
     protected function _getTagHtml(array $node, $asText)
     {
+        if ($this->_isTagUnPair($node['name'])) {
+            return "<{$node['body']}>";
+        }
+
         $html = "<{$node['body']}>";
         if ($node['children']) {
             if ($node['has_text'] || $asText) {
@@ -480,5 +513,16 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
     protected function _getGapHtml(array $node)
     {
         return $node['body'];
+    }
+
+    /**
+     * Check is tag un-pair
+     *
+     * @param $tag
+     * @return bool
+     */
+    protected function _isTagUnPair($tag)
+    {
+        return (bool)in_array(strtolower($tag), $this->_unPairTags);
     }
 }
