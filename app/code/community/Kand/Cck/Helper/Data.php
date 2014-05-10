@@ -325,10 +325,14 @@ class Kand_Cck_Helper_Data extends Mage_Core_Helper_Abstract
      * @param string $text
      * @param string $textLabel
      * @return string
+     * @throws Exception
      */
     protected function _addText($text, $textLabel = '')
     {
-        $textLabel                = $textLabel ? : 'text_' . (count($this->_texts) + 1);
+        $textLabel = $textLabel ? : 'text_' . (count($this->_texts) + 1);
+        if (isset($this->_texts[$textLabel])) {
+            throw new Exception("Element with label '$this->_texts[$textLabel]' already exists.");
+        }
         $this->_texts[$textLabel] = $text;
         return $textLabel;
     }
