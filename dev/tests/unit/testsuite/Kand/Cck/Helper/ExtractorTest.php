@@ -5,14 +5,14 @@
  * @category    Kand
  * @package     Kand_Cck
  */
-class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
+class Kand_Cck_Helper_ExtractorTest extends PHPUnit_Framework_TestCase
 {
     /**
      * Test class name
      *
      * @var string
      */
-    protected $_className = 'Kand_Cck_Helper_Data';
+    protected $_className = 'Kand_Cck_Helper_Extractor';
 
     /**
      * Output HTML fixture
@@ -52,7 +52,7 @@ class Kand_Cck_Helper_DataTest extends PHPUnit_Framework_TestCase
      * Get mock object
      *
      * @param array $methods
-     * @return Kand_Cck_Helper_Data|PHPUnit_Framework_MockObject_MockObject
+     * @return Kand_Cck_Helper_Extractor|PHPUnit_Framework_MockObject_MockObject
      */
     protected function _getObjectMock(array $methods)
     {
